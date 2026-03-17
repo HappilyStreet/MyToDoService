@@ -1,4 +1,4 @@
-app: MyToDoService
+app: mytodoervice
 containerImage:
   iamge: mrsunchip/mytodo-service:latest
 nodetype: NodePort
