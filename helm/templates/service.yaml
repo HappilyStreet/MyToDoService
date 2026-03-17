@@ -11,6 +11,6 @@ spec:
     - name: {{ .Values.app }}-listener
       protocol: TCP
       port: 80
-      targertPort: 80
+      targetPort: 80
       nodePort: 30181
   type: {{ .Values.nodetype }}
