@@ -17,5 +17,5 @@ spec:
         - name: {{ .Values.app }}-web
           image: {{ .Values.image }}
           ports:
-          - containerPorts: 80
+          - containerPort: 80
 
