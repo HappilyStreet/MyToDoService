@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app }}-deployment
+  labels: {{ .Values.app }}-k8s
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      project: {{ .Values.app }}
+  template:
+    metadata:
+      name: {{ .Values.app }}
+  spec:
+    containers:
+      - name: {{ .Values.app }}-web
+        image: {{ .Values.image }}
+        ports:
+        - containerPorts: 80
+

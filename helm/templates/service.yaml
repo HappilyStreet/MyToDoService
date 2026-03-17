@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app }}-service
+  labels:
+    env: PROD
+spec:
+  selector:
+    project: {{ .Values.app }}
+  ports:
+    - name: {{ .Values.app }}-listener
+      protocol: TCP
+      port: 80
+      targertPort: 80
+      nodePort: 30181
+  type: {{ .Values.nodetype }}

@@ -1,0 +1,4 @@
+app: MyToDoService
+containerImage:
+  iamge: mrsunchip/mytodo-service:latest
+nodetype: NodePort
