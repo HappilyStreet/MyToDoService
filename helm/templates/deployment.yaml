@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        project: {{ .Values.name }}
+        project: {{ .Values.app }}
     spec:
       containers:
         - name: {{ .Values.app }}-web
