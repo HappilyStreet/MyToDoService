@@ -1,4 +1,5 @@
 app: mytodoervice
-containerImage:
-  iamge: mrsunchip/mytodo-service:latest
+image:
+  repository: mrsunchip/mytodo-service
+  tag: latest
 nodetype: NodePort
