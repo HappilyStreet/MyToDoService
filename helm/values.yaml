@@ -1,4 +1,4 @@
-app: mytodoervice
+app: mytodoservice
 image:
   repository: mrsunchip/mytodo-service
   tag: latest
