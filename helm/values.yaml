@@ -3,3 +3,4 @@ image:
   repository: mrsunchip/mytodo-service
   tag: latest
 nodetype: NodePort
+servicePort: 30181
