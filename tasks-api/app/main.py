@@ -3,7 +3,7 @@ from typing import List
 from app.models import Task
 import os
 
-# Для метрик Prometheus
+# Для метрик Prometheus1
 from prometheus_client import Counter, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST, push_to_gateway
 
 app = FastAPI(title="Task API")
