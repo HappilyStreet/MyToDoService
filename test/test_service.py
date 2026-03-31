@@ -1,12 +1,15 @@
 import requests
-import uuid
 
-BASE_URL = "http://82.117.87.172:30181"  # URL вашего API
+BASE_URL = "http://82.117.87.172:30181"
 
+# Счётчик для уникальных числовых ID
+task_counter = 1000
 
 def generate_unique_id():
-    """Генерация уникального идентификатора задачи"""
-    return str(uuid.uuid4())
+    """Генерация уникального целочисленного ID"""
+    global task_counter
+    task_counter += 1
+    return task_counter
 
 
 def test_create_task():
@@ -41,8 +44,8 @@ def test_delete_task():
 
 def test_task_not_found_after_delete():
     """Проверяем, что удалённая задача больше не существует"""
-    task_id = test_create_task()  # создаём задачу перед удалением
-    requests.delete(f"{BASE_URL}/tasks/{task_id}")  # удаляем задачу
+    task_id = test_create_task()
+    requests.delete(f"{BASE_URL}/tasks/{task_id}")
     r = requests.get(f"{BASE_URL}/tasks/{task_id}")
     assert r.status_code == 404, f"Удалённая задача всё ещё существует: {r.text}"
 
