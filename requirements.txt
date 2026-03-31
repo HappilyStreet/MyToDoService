@@ -2,3 +2,10 @@ fastapi
 uvicorn
 pydantic
 prometheus_client
+flask
+sqlalchemy
+pytest
+pytest-cov
+allure-pytest
+pylint
+requests
