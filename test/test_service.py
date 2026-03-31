@@ -2,7 +2,7 @@ import pytest
 import requests
 import uuid
 
-BASE_URL = "http://localhost:8000"  # Укажи свой URL сервиса
+BASE_URL = "http://82.117.87.172:30181"  # Укажи свой URL сервиса
 
 
 @pytest.fixture
