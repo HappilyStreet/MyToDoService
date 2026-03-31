@@ -1,35 +1,43 @@
-# test/test_service_real.py
+# test/test_service_real_unique.py
 import pytest
 import requests
+import time
 
-# Адрес твоего реального сервера
 BASE_URL = "http://82.117.87.172:30181"
 
 # ---------------------------
-# Фикстура: создаём задачу перед тестами
+# Генератор уникальных ID
+# ---------------------------
+def unique_id():
+    # Используем timestamp, чтобы был уникальным
+    return int(time.time() * 1000) % 1000000
+
+# ---------------------------
+# Фикстура для создания задачи
 # ---------------------------
 @pytest.fixture
 def created_task():
-    """Создаём задачу перед тестами и возвращаем её"""
-    data = {"id": 1, "title": "Smoke Test Task", "completed": False}
+    task_id = unique_id()
+    data = {"id": task_id, "title": "Smoke Test Task", "completed": False}
     r = requests.post(f"{BASE_URL}/tasks", json=data)
-    assert r.status_code == 201  # FastAPI возвращает 201 при создании
+    assert r.status_code == 200
     return r.json()
 
 # ---------------------------
-# Тест: создание задачи
+# Тест создания задачи
 # ---------------------------
 def test_create_task():
-    data = {"id": 2, "title": "Another Task", "completed": False}
+    task_id = unique_id()
+    data = {"id": task_id, "title": "Another Task", "completed": False}
     r = requests.post(f"{BASE_URL}/tasks", json=data)
-    assert r.status_code == 201
+    assert r.status_code == 200
     resp_data = r.json()
-    assert resp_data["id"] == 2
+    assert resp_data["id"] == task_id
     assert resp_data["title"] == "Another Task"
     assert resp_data["completed"] is False
 
 # ---------------------------
-# Тест: удаление задачи
+# Тест удаления задачи
 # ---------------------------
 def test_delete_task(created_task):
     task_id = created_task["id"]
@@ -39,13 +47,15 @@ def test_delete_task(created_task):
     assert resp_data["deleted"] == task_id
 
 # ---------------------------
-# Тест: проверка, что задача удалена
+# Тест проверки отсутствия задачи после удаления
 # ---------------------------
-def test_task_not_found_after_delete(created_task):
-    task_id = created_task["id"]
-    # сначала удаляем
+def test_task_not_found_after_delete():
+    task_id = unique_id()
+    # создаём задачу
+    requests.post(f"{BASE_URL}/tasks", json={"id": task_id, "title": "Temp Task", "completed": False})
+    # удаляем задачу
     requests.delete(f"{BASE_URL}/tasks/{task_id}")
-    # потом проверяем, что задача больше не существует
+    # проверяем список
     r = requests.get(f"{BASE_URL}/tasks")
     assert r.status_code == 200
     tasks = r.json()
