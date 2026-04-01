@@ -42,6 +42,29 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 5
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutocaler
+metadata:
+  name: {{ .Values.app }}-hpa
+  labels:
+    app: {{ .Values.app }}-k8s
+  spec:
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: {{ .Values.app }}-deployment
+    minReplicas: 2
+    maxReplicas: 5
+    metrics:
+      - type: Resources
+        resourse:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 75
+  
           
         
 
