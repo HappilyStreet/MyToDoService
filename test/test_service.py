@@ -13,6 +13,22 @@ def unique_id():
     return int(time.time() * 1000) % 1000000
 
 # ---------------------------
+# Вспомогательная функция для polling
+# ---------------------------
+def wait_until_task_gone(task_id, timeout=3, interval=0.1):
+    """Ждём, пока задача исчезнет из списка задач."""
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        r = requests.get(f"{BASE_URL}/tasks")
+        if r.status_code == 200:
+            tasks = r.json()
+            ids = [t["id"] for t in tasks]
+            if task_id not in ids:
+                return True
+        time.sleep(interval)
+    return False
+
+# ---------------------------
 # Фикстура для создания задачи
 # ---------------------------
 @pytest.fixture
@@ -46,6 +62,9 @@ def test_delete_task(created_task):
     resp_data = r.json()
     assert resp_data["deleted"] == task_id
 
+    # Ждём, пока задача исчезнет
+    assert wait_until_task_gone(task_id), f"Task {task_id} still exists after deletion"
+
 # ---------------------------
 # Тест проверки отсутствия задачи после удаления
 # ---------------------------
@@ -55,9 +74,5 @@ def test_task_not_found_after_delete():
     requests.post(f"{BASE_URL}/tasks", json={"id": task_id, "title": "Temp Task", "completed": False})
     # удаляем задачу
     requests.delete(f"{BASE_URL}/tasks/{task_id}")
-    # проверяем список
-    r = requests.get(f"{BASE_URL}/tasks")
-    assert r.status_code == 200
-    tasks = r.json()
-    ids = [t["id"] for t in tasks]
-    assert task_id not in ids
+    # ждём, пока задача исчезнет
+    assert wait_until_task_gone(task_id), f"Task {task_id} still exists after deletion"
