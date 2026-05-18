@@ -24,7 +24,7 @@ spec:
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: Always
           ports:
-          - containerPort: 8000
+          - containerPort: 80
           resources:
             requests:
               cpu: "100m"
@@ -35,13 +35,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port: 80
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 5
 ---
