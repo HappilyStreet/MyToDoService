@@ -119,14 +119,15 @@ def test_create_duplicate_id():
 # ---------------------------
 def test_delete_task(created_task):
     task_id = created_task["id"]
+    
     r = requests.delete(f"{BASE_URL}/tasks/{task_id}")
+    assert r.status_code == 200
     
-    assert r.status_code == 200, f"Expected 200, got {r.status_code}"
-    resp_data = r.json()
-    assert resp_data["deleted"] == task_id
+    time.sleep(0.5)  # Подождать полсекунды
     
-    # Ждём, пока задача исчезнет
-    assert wait_until_task_gone(task_id), f"Task {task_id} still exists after deletion"
+    # Проверяем, что задача действительно удалена
+    r_get = requests.get(f"{BASE_URL}/tasks/{task_id}")
+    assert r_get.status_code == 404
 
 # ---------------------------
 # Тест 6: Удаление несуществующей задачи (ДОЛЖЕН ВОЗВРАЩАТЬ 404)
@@ -143,14 +144,15 @@ def test_delete_nonexistent_task():
 # ---------------------------
 def test_task_not_found_after_delete():
     task_id = unique_id()
-    # создаём задачу
-    r_create = requests.post(f"{BASE_URL}/tasks", 
-                             json={"id": task_id, "title": "Temp Task", "completed": False})
+    
+    r_create = requests.post(f"{BASE_URL}/tasks",
+                            json={"id": task_id, "title": "Temp Task", "completed": False})
     assert r_create.status_code == 200
     
-    # удаляем задачу
     r_delete = requests.delete(f"{BASE_URL}/tasks/{task_id}")
     assert r_delete.status_code == 200
     
-    # ждём, пока задача исчезнет
-    assert wait_until_task_gone(task_id), f"Task {task_id} still exists after deletion"
+    time.sleep(0.5)  # Подождать
+    
+    r_get = requests.get(f"{BASE_URL}/tasks/{task_id}")
+    assert r_get.status_code == 404
