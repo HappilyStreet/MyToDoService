@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.app }}-deployment
+  namespace: sunchipspace
   labels:
     app: {{ .Values.app }}-k8s
 spec:
@@ -48,6 +49,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.app }}-hpa
+  namespace: sunchipspace
   labels:
     app: {{ .Values.app }}-k8s
 spec:
