@@ -23,6 +23,11 @@ tasks = [
     Task(id=2, title="Deploy to Kubernetes", completed=False)
 ]
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for Kubernetes probes"""
+    return {"status": "healthy", "service": "todo-service"}
+
 # 6. GET-эндпоинт (для проверки работы)
 @app.get("/")
 def root():
