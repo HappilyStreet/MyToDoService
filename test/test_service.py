@@ -3,7 +3,7 @@ import pytest
 import requests
 import time
 
-BASE_URL = "http://82.117.87.172:30181"
+BASE_URL = "http://193.233.246.93:30181"
 
 # ---------------------------
 # Генератор уникальных ID
