@@ -1,7 +1,14 @@
+# Навигация 
+* [Описание проекта](описание-проекта)
+  * [Схема CI/CD](Схема-CI/CD)
+* [Настройка окружения](настройка-окружения)
+  * [Настройка Jenkins](настройка-Jenkins)
+  * [Установка и настройка Kubernetes](установка-и-настройка-kubernetes)
+    * [Содержимое проекта](содержимое-проекта)
+    * [Работающий сервис](Работающий-сервис)
 
 
-
-# Описание проекта
+## Описание проекта
 В данном репозитории расположены инструкция и исходные файлы развертывания инфраструктуры для деплоя python-приложения в kubernetes cluster посредством Jenkins/Groovy.
 Инстанс Jenkins разворачивается на отдельной ВМ. Kubernetes так же разворачивался на отдельной ВМ.
 
@@ -14,38 +21,55 @@
 Характеристики ВМ:
 ![image](res/VM_stats.png)
 
+```
 Версия Docker 29.3.1, build c2be9cc
+```
 
 ## Настройка Jenkins
 Ксластер Jenkins  разварачивался на ВМ, которая была развернута в облаке Cloud.ru.
 Характеристики ВМ:
 ![image](res/Jenkins_stats.png)
+
 - Установим java
+```
 sudo apt update
 sudo apt install -y openjdk-17-jre
+```
 
 - Установка Jenkins
-Добавим ключ репозитория
+- Добавим ключ репозитория
+```
 curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+```
 
-Добавим репозиторий в список apt
+- Добавим репозиторий в список apt
+```
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+```
 
-Обновим список пакетов и установим Jenkins
+- Обновим список пакетов и установим Jenkins
+```
 sudo apt-get update
 sudo apt-get install -y jenkins
+```
 
 Проверка запущенной службы Jenkins
+```
 sudo systemctl status jenkins
+```
 
 Получение первоначального пароля
+```
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
 
 Дополнительно установленные плагины, которые использовались в работе
+```
 - Pipeline
 - Allure 
 - Pipeline Stage View Plugin
 - Rebuilder
+```
 
 ## Установка и настройка Kubernetes
 Ксластер kubenetes настраивался  на ВМ, которая была развернута в облаке Aeza.
@@ -53,9 +77,12 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ![image](res/VM_stats.png)
 
 - Отлючим swap
+```
 sudo swapoff -a
+```
 
 - Подгружаем необходимые модули ядра
+```
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
 br_netfilter
@@ -72,77 +99,109 @@ net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 
 sudo sysctl --system
+```
 
 - Устанавливаем containerd (CRI)
+```
 sudo apt-get update
 sudo apt-get install -y containerd
+```
 
 - Создаем конфиг по умолчанию и перезапускаем containerd с SystemdCgroup
+```
 sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
 sudo systemctl restart containerd
+```
 
 - Устанавливаем зависимости
+```
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+```
 
 - Скачиваем дистрибутив и добавляем ключ в репозиторий
+```
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
 
 - Происховдим установку пакетов
 sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 
 - Инициализация Control Plane
+```
 sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<...>
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 
 - Проверяем, установлен ли Tigera
+```
 kubectl get pods -n tigera-operator
+```
+
 - Так как запущенного пода нет, то делаем
+```
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.3/manifests/tigera-operator.yaml
+```
 
 - Скачиваем Calico
+```
 wget https://raw.githubusercontent.com/projectcalico/calico/v3.31.3/manifests/custom-resources.yaml
+```
 
 - Редактируем файл custom-resources для calico
+```
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.3/manifests/custom-resources.yaml
+```
 
 - Редактируем файл custom-resources.yaml, указывая там подсеть нашего хоста и приминяем изменения
+```
 kubectl apply -f custom-resources.yaml
+```
 
 - Проверяем, что под запущен
+```
 watch kubectl get pods -n calico-system
+```
 
 - Снятие Taint, так как у нас 1 ВМ и все будет устанавливаться на Master Node
+```
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+```
 
 - Выполняем проверку
+```
 kubectl get nodes
+```
 
 - Создаем namespace
+```
 kubectl create namespace sunchipspace
+```
 
 - Создаем namespace.yaml и редактируем его
+```
 apiVersion: v1
 kind: Namespace
 metadata:
   name: sunchipspace
-
+```
 - Приминяем и проверяем
+```
 kubectl apply -f namespace.yaml
 kubectl get namespaces
+```
 
 # Содержимое проекта
 Исходный код приложения MyToDoService - https://github.com/HappilyStreet/MyToDoService 
 
 Сущности Kubernetes, для последующего разворачивания образа приложения в кластере
-[deployment.yaml] (https://github.com/HappilyStreet/MyToDoService/blob/main/helm/templates/deployment.yaml)
+[deployment.yaml](https://github.com/HappilyStreet/MyToDoService/blob/main/helm/templates/deployment.yaml)
 ```
 apiVersion: apps/v1
 kind: Deployment
@@ -191,9 +250,9 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 ```
-[hpa.yaml] (https://github.com/HappilyStreet/MyToDoService/blob/main/helm/templates/hpa.yaml)
-apiVersion: autoscaling/v2
+[hpa.yaml](https://github.com/HappilyStreet/MyToDoService/blob/main/helm/templates/hpa.yaml)
 ```
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.app }}-hpa
@@ -532,7 +591,7 @@ def testStage() {
 return this
 ```
 Результаты тестов в allure reports
-![image](res/Tests_result.png)
+![image](res/Tests_relusts.png)
 
 # Работающий сервис
 ![image](res/Running_service.png)
