@@ -595,4 +595,3 @@ return this
 
 # Работающий сервис
 ![image](res/Running_service.png)
-
