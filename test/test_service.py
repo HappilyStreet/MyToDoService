@@ -64,8 +64,7 @@ def test_create_task():
     
     # Cleanup
     requests.delete(f"{BASE_URL}/tasks/{task_id}")
-
-# ---------------------------
+    # ---------------------------
 # Тест 2: Создание задачи без поля completed (должен быть default False)
 # ---------------------------
 def test_create_task_without_completed():

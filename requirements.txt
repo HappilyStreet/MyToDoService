@@ -9,4 +9,3 @@ pytest-cov
 allure-pytest
 pylint
 requests
-prometheus-fastapi-instrumentator
