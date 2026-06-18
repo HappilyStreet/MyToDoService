@@ -9,5 +9,4 @@ COPY tasks-api/app ./app
 
 EXPOSE 80
 
-# Используйте Gunicorn вместо Uvicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "app:app"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
